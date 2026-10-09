@@ -66,6 +66,7 @@ fun RecordingPlayerScreen(api: Api, id: String, onExit: () -> Unit) {
     val context = LocalContext.current
     val player = remember { ExoPlayer.Builder(context).build().apply { playWhenReady = true } }
     DisposableEffect(Unit) { onDispose { player.release() } }
+    KeepScreenOnWhilePlaying(player)
     val scope = rememberCoroutineScope()
 
     var rec by remember { mutableStateOf<Recording?>(null) }

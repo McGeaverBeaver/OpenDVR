@@ -85,6 +85,7 @@ fun PlayerScreen(
     val context = LocalContext.current
     val player = remember { ExoPlayer.Builder(context).build().apply { playWhenReady = true } }
     DisposableEffect(Unit) { onDispose { player.release() } }
+    KeepScreenOnWhilePlaying(player)
 
     var state by remember { mutableStateOf<PlayState>(PlayState.Tuning) }
     var channels by remember { mutableStateOf<List<Channel>>(emptyList()) }
