@@ -1,0 +1,26 @@
+# Local / generic Docker deployment. For Unraid use unraid/opendvr.xml.
+services:
+  opendvr:
+    build:
+      context: .
+      args:
+        VERSION: dev
+    image: ghcr.io/mcgeaverbeaver/opendvr:dev
+    container_name: opendvr
+    restart: unless-stopped
+    ports:
+      - "8089:8089"
+    environment:
+      # Comma separated HDHomeRun IPs. Required when the tuner is on another
+      # subnet (VPN) or the container runs in bridge mode.
+      HDHR_HOSTS: "${HDHR_HOSTS:-}"
+      ENCODER: "${ENCODER:-auto}"
+      BUFFER_MINUTES: "30"
+      LOG_LEVEL: "${LOG_LEVEL:-info}"
+    volumes:
+      - ./data/config:/config
+      - ./data/buffer:/buffer
+      - ./data/recordings:/recordings
+    devices:
+      # Intel Quick Sync. Remove on hosts without an Intel GPU.
+      - /dev/dri:/dev/dri

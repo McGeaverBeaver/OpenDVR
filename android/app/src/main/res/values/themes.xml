@@ -1,0 +1,7 @@
+<resources>
+    <style name="Theme.OpenDVR" parent="android:Theme.Material.NoActionBar">
+        <item name="android:windowBackground">#0f1115</item>
+        <item name="android:colorBackground">#0f1115</item>
+        <item name="android:windowFullscreen">true</item>
+    </style>
+</resources>

@@ -1,0 +1,56 @@
+<?xml version="1.0"?>
+<Container version="2">
+  <Name>OpenDVR</Name>
+  <Repository>ghcr.io/mcgeaverbeaver/opendvr:latest</Repository>
+  <Registry>https://github.com/McGeaverBeaver/opendvr/pkgs/container/opendvr</Registry>
+  <Network>bridge</Network>
+  <MyIP/>
+  <Shell>bash</Shell>
+  <Privileged>false</Privileged>
+  <Support>https://github.com/McGeaverBeaver/opendvr/issues</Support>
+  <Project>https://github.com/McGeaverBeaver/opendvr</Project>
+  <Overview>Self-hosted live TV and DVR for HDHomeRun tuners. One tuner session per channel is shared by any number of viewers, each with their own pause and rewind. Hardware transcoding with Intel Quick Sync. Pass through /dev/dri for hardware encoding.</Overview>
+  <Category>MediaServer:Video</Category>
+  <WebUI>http://[IP]:[PORT:8089]/</WebUI>
+  <TemplateURL>https://raw.githubusercontent.com/McGeaverBeaver/opendvr/HEAD/unraid/opendvr.xml</TemplateURL>
+  <Icon>https://raw.githubusercontent.com/McGeaverBeaver/opendvr/HEAD/web/public/favicon.svg</Icon>
+  <ExtraParams>--device=/dev/dri:/dev/dri</ExtraParams>
+  <PostArgs/>
+  <CPUset/>
+  <DateInstalled/>
+  <DonateText/>
+  <DonateLink/>
+  <Requires/>
+  <Config Name="WebUI port" Target="8089" Default="8089" Mode="tcp" Description="HTTP port for the web UI and API." Type="Port" Display="always" Required="true" Mask="false">8089</Config>
+  <Config Name="HDHomeRun hosts" Target="HDHR_HOSTS" Default="" Description="Comma separated IPs of your HDHomeRun tuners, e.g. 192.168.1.50. Required in bridge mode or when the tuner is across a VPN." Type="Variable" Display="always" Required="true" Mask="false"></Config>
+  <Config Name="Config" Target="/config" Default="/mnt/user/appdata/opendvr" Mode="rw" Description="Persistent settings and database." Type="Path" Display="always" Required="true" Mask="false">/mnt/user/appdata/opendvr</Config>
+  <Config Name="Live buffer" Target="/buffer" Default="/mnt/cache/appdata/opendvr/buffer" Mode="rw" Description="Ring buffer for live TV. Put this on cache/NVMe, never on the array." Type="Path" Display="always" Required="true" Mask="false">/mnt/cache/appdata/opendvr/buffer</Config>
+  <Config Name="Recordings" Target="/recordings" Default="/mnt/user/media/tv" Mode="rw" Description="Where DVR recordings are stored, as Show/Show - S01E02 - Episode.mp4. The array is fine; files are written once." Type="Path" Display="always" Required="true" Mask="false">/mnt/user/media/tv</Config>
+  <Config Name="Encoder" Target="ENCODER" Default="auto" Description="auto, qsv, vaapi or software. auto picks Quick Sync when /dev/dri is present." Type="Variable" Display="advanced" Required="false" Mask="false">auto</Config>
+  <Config Name="Buffer minutes" Target="BUFFER_MINUTES" Default="30" Description="How many minutes of live TV each tuned channel keeps for pause and rewind." Type="Variable" Display="advanced" Required="false" Mask="false">30</Config>
+  <Config Name="Video bitrate (kbit/s)" Target="VIDEO_BITRATE_K" Default="6000" Description="Transcode target bitrate for 1080i broadcast." Type="Variable" Display="advanced" Required="false" Mask="false">6000</Config>
+  <Config Name="Log level" Target="LOG_LEVEL" Default="info" Description="debug, info, warn or error." Type="Variable" Display="advanced" Required="false" Mask="false">info</Config>
+  <Config Name="Segment seconds" Target="SEGMENT_SECONDS" Default="2" Description="HLS segment length. 1 gives the fastest channel changes." Type="Variable" Display="advanced" Required="false" Mask="false">2</Config>
+  <Config Name="Auth issuer" Target="AUTH_ISSUER" Default="" Description="OpenID Connect issuer, e.g. https://auth.example.com/application/o/opendvr/ (Authentik). Leave empty to keep the server open on the LAN." Type="Variable" Display="always" Required="false" Mask="false"></Config>
+  <Config Name="Auth client id" Target="AUTH_CLIENT_ID" Default="" Description="OIDC client id from the Authentik provider." Type="Variable" Display="always" Required="false" Mask="false"></Config>
+  <Config Name="Auth client secret" Target="AUTH_CLIENT_SECRET" Default="" Description="OIDC client secret from the Authentik provider." Type="Variable" Display="always" Required="false" Mask="true"></Config>
+  <Config Name="Public URL" Target="AUTH_PUBLIC_URL" Default="" Description="How browsers reach this server, e.g. https://tv.example.com. The OIDC redirect URI is this plus /auth/callback." Type="Variable" Display="always" Required="false" Mask="false"></Config>
+  <Config Name="MCP token" Target="MCP_TOKEN" Default="" Description="Bearer token the /mcp endpoint accepts when auth is on (for the Claude connector)." Type="Variable" Display="advanced" Required="false" Mask="true"></Config>
+  <Config Name="Allowed group" Target="AUTH_GROUP" Default="" Description="Authentik group required to sign in at all. Empty allows every user the application is assigned to." Type="Variable" Display="always" Required="false" Mask="false"></Config>
+  <Config Name="DVR padding before (min)" Target="DVR_PAD_BEFORE" Default="1" Description="Minutes a recording starts before the listed time." Type="Variable" Display="advanced" Required="false" Mask="false">1</Config>
+  <Config Name="DVR padding after (min)" Target="DVR_PAD_AFTER" Default="3" Description="Minutes a recording runs past the listed end." Type="Variable" Display="advanced" Required="false" Mask="false">3</Config>
+  <Config Name="Commercial detection" Target="COMSKIP_PATH" Default="" Description="Leave empty to use the bundled comskip; set to off to never detect commercials." Type="Variable" Display="advanced" Required="false" Mask="false"></Config>
+  <Config Name="Recordings cap (GB)" Target="DVR_MAX_GB" Default="0" Description="Keep the recordings folder under this many GB; 0 is no cap. Watched recordings are removed first." Type="Variable" Display="always" Required="false" Mask="false">0</Config>
+  <Config Name="Tuner for Plex/Jellyfin" Target="HDHR_EMULATE" Default="false" Description="true serves an HDHomeRun-compatible tuner (discover.json, lineup.json, streams) so Plex, Jellyfin or Emby can add this server." Type="Variable" Display="always" Required="false" Mask="false">false</Config>
+  <Config Name="Notification webhook" Target="NOTIFY_WEBHOOK" Default="" Description="URL that receives a JSON POST when a recording fails or conflicts (ntfy, Gotify, Discord, Slack, Home Assistant)." Type="Variable" Display="advanced" Required="false" Mask="false"></Config>
+  <Config Name="Notify when ready" Target="NOTIFY_ON_READY" Default="false" Description="Also notify when a recording finishes." Type="Variable" Display="advanced" Required="false" Mask="false">false</Config>
+  <Config Name="SMTP host" Target="SMTP_HOST" Default="" Description="Mail server for notifications; leave empty to use only the webhook." Type="Variable" Display="advanced" Required="false" Mask="false"></Config>
+  <Config Name="SMTP user" Target="SMTP_USER" Default="" Description="Mail login." Type="Variable" Display="advanced" Required="false" Mask="false"></Config>
+  <Config Name="SMTP password" Target="SMTP_PASS" Default="" Description="Mail password." Type="Variable" Display="advanced" Required="false" Mask="true"></Config>
+  <Config Name="Notification email" Target="NOTIFY_EMAIL" Default="" Description="Comma separated recipients." Type="Variable" Display="advanced" Required="false" Mask="false"></Config>
+  <Config Name="Closed captions" Target="CAPTIONS" Default="true" Description="Extract closed captions from recordings." Type="Variable" Display="advanced" Required="false" Mask="false">true</Config>
+  <Config Name="User id (PUID)" Target="PUID" Default="99" Description="Account the server runs as after start-up. 99 is nobody." Type="Variable" Display="advanced" Required="false" Mask="false">99</Config>
+  <Config Name="Group id (PGID)" Target="PGID" Default="100" Description="Group the server runs as. 100 is users." Type="Variable" Display="advanced" Required="false" Mask="false">100</Config>
+  <Config Name="Admin group" Target="ADMIN_GROUP" Default="" Description="Authentik group that gets the Admin page (audit log, who is watching, connectors). Empty uses the MCP group." Type="Variable" Display="always" Required="false" Mask="false"></Config>
+  <Config Name="MCP group" Target="MCP_GROUP" Default="admin" Description="Authentik group required to use the MCP endpoint (the Claude connector)." Type="Variable" Display="advanced" Required="false" Mask="false">admin</Config>
+</Container>

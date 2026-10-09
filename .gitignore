@@ -1,0 +1,31 @@
+# Go
+/bin/
+/dist/
+*.test
+*.out
+
+# Node
+web/node_modules/
+web/dist/
+
+# Runtime data
+/data/
+/buffer/
+*.log
+
+# Editors / OS
+.DS_Store
+.idea/
+.vscode/
+*.swp
+
+# Local env
+.env
+/android/.gradle/
+/android/build/
+/android/app/build/
+/android/local.properties
+/android/.idea/
+*.apk
+!android/gradle/wrapper/gradle-wrapper.jar
+/apk/*.apk

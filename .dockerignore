@@ -1,0 +1,10 @@
+.git
+.github
+bin
+data
+buffer
+web/node_modules
+web/dist
+docs
+unraid
+*.md
