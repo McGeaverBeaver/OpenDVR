@@ -37,6 +37,7 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -89,7 +90,7 @@ fun SetupScreen(prefs: Prefs, api: Api, autoName: String, initialError: String?,
     fun save() {
         busy = true
         error = null
-        prefs.serverUrl = url
+        prefs.serverUrl = url.filterNot { it.isWhitespace() }
         prefs.deviceName = name
         scope.launch {
             try {
@@ -114,10 +115,16 @@ fun SetupScreen(prefs: Prefs, api: Api, autoName: String, initialError: String?,
         Text("The address you open in a browser, for example http://192.168.1.10:8089", color = Muted, textAlign = TextAlign.Center)
         Spacer(Modifier.height(24.dp))
         OutlinedTextField(
-            value = url, onValueChange = { url = it }, singleLine = true, colors = fieldColors,
+            // An address never holds a space. Keyboards that add one after each
+            // "." (autocorrect's space after punctuation) are told not to, and
+            // the ones that ignore that have the space dropped as it is typed.
+            value = url, onValueChange = { v -> url = v.filterNot { it.isWhitespace() } }, singleLine = true, colors = fieldColors,
             label = { Text("Server address") },
             supportingText = { Text("Press OK to type", color = Muted) },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri, imeAction = ImeAction.Next, showKeyboardOnFocus = false),
+            keyboardOptions = KeyboardOptions(
+                capitalization = KeyboardCapitalization.None, autoCorrectEnabled = false,
+                keyboardType = KeyboardType.Uri, imeAction = ImeAction.Next, showKeyboardOnFocus = false,
+            ),
             keyboardActions = KeyboardActions(onNext = { focusManager.moveFocus(FocusDirection.Down) }),
             modifier = Modifier.fillMaxWidth(0.9f).widthIn(max = 520.dp).focusRequester(urlField).then(okOpensKeyboard),
         )
