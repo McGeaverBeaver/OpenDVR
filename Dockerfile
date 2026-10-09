@@ -1,5 +1,3 @@
-# syntax=docker/dockerfile:1.7
-
 # ---- web client -----------------------------------------------------------
 FROM node:22-alpine AS web
 WORKDIR /src/web
