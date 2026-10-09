@@ -38,7 +38,11 @@ import androidx.compose.ui.unit.sp
 // the D-pad and shows a bright ring when focused; Material's buttons are
 // focusable too but their focus state is nearly invisible on a TV.
 
-/** A push button with an unmistakable focus ring. */
+/**
+ * A push button with an unmistakable focus ring. A disabled button keeps
+ * focus and ignores OK: if it gave focus up, the remote's focus would jump
+ * to whatever came first on the screen, often a text field.
+ */
 @Composable
 fun TvButton(text: String, modifier: Modifier = Modifier, enabled: Boolean = true, onClick: () -> Unit) {
     var focused by remember { mutableStateOf(false) }
@@ -47,7 +51,7 @@ fun TvButton(text: String, modifier: Modifier = Modifier, enabled: Boolean = tru
             .onFocusChanged { focused = it.isFocused }
             .border(2.dp, if (focused) Accent else Color.Transparent, RoundedCornerShape(8.dp))
             .background(if (focused) FocusFill else Panel2, RoundedCornerShape(8.dp))
-            .clickable(enabled = enabled, onClick = onClick)
+            .clickable { if (enabled) onClick() }
             .padding(horizontal = 18.dp, vertical = 10.dp),
         contentAlignment = Alignment.Center,
     ) {

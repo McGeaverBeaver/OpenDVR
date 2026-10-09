@@ -168,6 +168,7 @@ fun SetupScreen(prefs: Prefs, api: Api, autoName: String, initialError: String?,
             )
             Spacer(Modifier.height(8.dp))
             TvButton(updating?.let { "Downloading\u2026 $it%" } ?: "Update to ${release.versionName}", enabled = updating == null) {
+                keyboard?.hide()
                 updating = 0
                 error = null
                 note = null
