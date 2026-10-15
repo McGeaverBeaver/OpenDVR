@@ -67,3 +67,29 @@ func TestOriginalExpires(t *testing.T) {
 		t.Fatal("redetect without an original accepted")
 	}
 }
+
+func TestOriginalExpiresWhenKeepLowered(t *testing.T) {
+	s := newService(t, &fakeTuners{}, &fakeGuide{})
+	if err := os.MkdirAll(s.cfg.RecordingsDir+"/Show", 0o755); err != nil {
+		t.Fatal(err)
+	}
+	ts := s.cfg.RecordingsDir + "/Show/a.ts"
+	_ = os.WriteFile(ts, []byte("x"), 0o644)
+	now := time.Now()
+	s.mu.Lock()
+	// Both were promised seven days under the old setting, which is now 2.
+	s.cfg.KeepOriginalDays = 2
+	s.recs["a"] = &Recording{ID: "a", Status: StatusReady, File: "Show/a.mp4", Original: "Show/a.ts", Finished: now.AddDate(0, 0, -3), OriginalUntil: now.AddDate(0, 0, 4)}
+	s.recs["b"] = &Recording{ID: "b", Status: StatusReady, File: "Show/b.mp4", Original: "Show/b.ts", Finished: now.AddDate(0, 0, -1), OriginalUntil: now.AddDate(0, 0, 6)}
+	s.expireOriginalsLocked(now)
+	s.mu.Unlock()
+	if _, err := os.Stat(ts); err == nil {
+		t.Fatal("original past the lowered setting kept")
+	}
+	if r, _ := s.Recording("a"); r.Original != "" {
+		t.Fatal("original past the lowered setting still listed")
+	}
+	if r, _ := s.Recording("b"); r.Original == "" {
+		t.Fatal("original within the lowered setting dropped")
+	}
+}

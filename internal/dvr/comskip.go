@@ -237,10 +237,22 @@ func (s *Service) Redetect(id string, commercials Commercials) (Recording, error
 	return *r, nil
 }
 
-// expireOriginalsLocked deletes kept broadcast files past their date.
+// expireOriginalsLocked deletes kept broadcast files past their date. A
+// lowered KeepOriginalDays applies to files kept under the old setting
+// too, so turning it down (or off with 0) frees the space without waiting
+// out the days they were promised.
 func (s *Service) expireOriginalsLocked(now time.Time) {
 	for _, r := range s.recs {
-		if r.Original == "" || r.OriginalUntil.IsZero() || now.Before(r.OriginalUntil) || r.Status == StatusProcessing {
+		if r.Original == "" || r.OriginalUntil.IsZero() || r.Status == StatusProcessing {
+			continue
+		}
+		until := r.OriginalUntil
+		if !r.Finished.IsZero() {
+			if limit := r.Finished.AddDate(0, 0, s.cfg.KeepOriginalDays); limit.Before(until) {
+				until = limit
+			}
+		}
+		if now.Before(until) {
 			continue
 		}
 		_ = os.Remove(filepath.Join(s.cfg.RecordingsDir, filepath.FromSlash(r.Original)))

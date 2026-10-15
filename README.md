@@ -74,7 +74,7 @@ and serve path runs in CI without hardware.
 | `DVR_PAD_BEFORE` / `DVR_PAD_AFTER` | `1` / `3` | Default minutes recorded before and after the listed times |
 | `DVR_LOOKAHEAD` | `24h` | How far ahead passes are matched against the guide |
 | `APK_DIR` | `/app/apk` in Docker | Extra folder of app packages offered at `/downloads` |
-| `DVR_KEEP_ORIGINAL_DAYS` | `7` | Keep each recording's original broadcast file this many days, so commercials can be found again with other settings; `0` deletes it after processing |
+| `DVR_KEEP_ORIGINAL_DAYS` | `7` | Keep each recording's original broadcast file this many days, so commercials can be found again with other settings; `0` deletes it after processing. Lowering it also removes files already kept |
 | `DVR_MAX_GB` | `0` (no cap) | Keep the recordings folder under this size; watched recordings go first, then the oldest |
 | `CAPTIONS` | `true` | Extract closed captions from recordings to WebVTT sidecars |
 | `HDHR_EMULATE` | `false` | Serve `discover.json`, `lineup.json` and `/auto/v{ch}` so Plex, Jellyfin or Emby can use this server as a tuner |
@@ -252,7 +252,9 @@ How a recording is made:
    (Quick Sync on Unraid). With **remove**, the breaks are cut out during
    that transcode; with **skip**, they are kept in the file and marked,
    and the browser and TV players jump over them automatically (there is
-   a toggle). The `.ts` is deleted.
+   a toggle). The `.ts` is kept for `DVR_KEEP_ORIGINAL_DAYS` (7 by
+   default) so commercials can be found again, then deleted; set it to
+   `0` to delete the `.ts` as soon as the MP4 is made.
 
 Conflicts: passes are tried in priority order (drag them on the Passes
 tab) and anything that would need more tuners than you have shows as
