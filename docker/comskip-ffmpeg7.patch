@@ -1,0 +1,90 @@
+--- a/mpeg2dec.c
++++ b/mpeg2dec.c
+@@ -560,7 +560,7 @@
+     {
+         if (format == AV_SAMPLE_FMT_FLTP)
+         {
+-            for (l=0;l < is->audio_st->codecpar->channels;l++ )
++            for (l=0;l < is->audio_st->codecpar->ch_layout.nb_channels;l++ )
+             {
+                 fb[l] = (float*)b[l];
+             }
+@@ -568,16 +568,16 @@
+             {
+                 volume = 0;
+                 if (planar)
+-                    for (l=0;l < is->audio_st->codecpar->channels;l++ ) volume += *((fb[l])++) * 64000;
++                    for (l=0;l < is->audio_st->codecpar->ch_layout.nb_channels;l++ ) volume += *((fb[l])++) * 64000;
+                 else
+-                    for (l=0;l < is->audio_st->codecpar->channels;l++ ) volume += *((fb[0])++) * 64000;
+-                *audio_buffer_ptr++ = volume / is->audio_st->codecpar->channels;
+-                avg_volume += abs(volume / is->audio_st->codecpar->channels);
++                    for (l=0;l < is->audio_st->codecpar->ch_layout.nb_channels;l++ ) volume += *((fb[0])++) * 64000;
++                *audio_buffer_ptr++ = volume / is->audio_st->codecpar->ch_layout.nb_channels;
++                avg_volume += abs(volume / is->audio_st->codecpar->ch_layout.nb_channels);
+             }
+         }
+         else
+         {
+-            for (l=0;l < is->audio_st->codecpar->channels;l++ )
++            for (l=0;l < is->audio_st->codecpar->ch_layout.nb_channels;l++ )
+             {
+                 sb[l] = (short*)b[l];
+             }
+@@ -585,11 +585,11 @@
+             {
+                 volume = 0;
+                 if (planar)
+-                    for (l=0;l < is->audio_st->codecpar->channels;l++ ) volume += *((sb[l])++);
++                    for (l=0;l < is->audio_st->codecpar->ch_layout.nb_channels;l++ ) volume += *((sb[l])++);
+                 else
+-                    for (l=0;l < is->audio_st->codecpar->channels;l++ ) volume += *((sb[0])++);
+-                *audio_buffer_ptr++ = volume / is->audio_st->codecpar->channels;
+-                avg_volume += abs(volume / is->audio_st->codecpar->channels);
++                    for (l=0;l < is->audio_st->codecpar->ch_layout.nb_channels;l++ ) volume += *((sb[0])++);
++                *audio_buffer_ptr++ = volume / is->audio_st->codecpar->ch_layout.nb_channels;
++                avg_volume += abs(volume / is->audio_st->codecpar->ch_layout.nb_channels);
+             }
+         }
+     }
+@@ -766,15 +766,15 @@
+ 
+ 
+ 
+-        data_size = av_samples_get_buffer_size(NULL, is->frame->channels,
++        data_size = av_samples_get_buffer_size(NULL, is->frame->ch_layout.nb_channels,
+                                                is->frame->nb_samples,
+                                                is->frame->format, 1);
+         if (data_size > 0)
+         {
+-            sound_to_frames(is, (short **)is->frame->data, is->frame->nb_samples ,is->frame->channels, is->frame->format);
++            sound_to_frames(is, (short **)is->frame->data, is->frame->nb_samples ,is->frame->ch_layout.nb_channels, is->frame->format);
+         }
+         is->audio_clock += (double)data_size /
+-                           (is->frame->channels * is->frame->sample_rate * av_get_bytes_per_sample(is->frame->format));
++                           (is->frame->ch_layout.nb_channels * is->frame->sample_rate * av_get_bytes_per_sample(is->frame->format));
+         av_frame_unref(is->frame);
+     }
+ 
+@@ -1028,19 +1028,8 @@
+     is->audio_clock = 0.0;
+     if(ret < 0)
+     {
+-        char *error_text;
+-        if (is->pFormatCtx->iformat->read_seek)
+-        {
+-            error_text = "Format specific";
+-        }
+-        else if(is->pFormatCtx->iformat->read_timestamp)
+-        {
+-            error_text = "Frame binary";
+-        }
+-        else
+-        {
+-            error_text = "Generic";
+-        }
++        /* FFmpeg 7 made AVInputFormat.read_seek/read_timestamp private. */
++        char *error_text = "Generic";
+ 
+         fprintf(stderr, "%s error while seeking. target=%6.3f, \"%s\"\n", error_text,is->seek_pts, is->pFormatCtx->url);
+ 
