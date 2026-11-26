@@ -5,6 +5,11 @@ on:
     branches: [master]
     tags: ["v*"]
   workflow_dispatch:
+  # Weekly rebuild of master with fresh base images and no layer cache, so
+  # Debian security fixes (apt-get upgrade in the runtime stage) reach :latest
+  # even when no code changes.
+  schedule:
+    - cron: "17 5 * * 1"
 
 permissions:
   contents: read
@@ -72,6 +77,9 @@ jobs:
         with:
           context: .
           push: true
+          pull: true
+          # A cached build would reuse the old apt-get upgrade layer.
+          no-cache: ${{ github.event_name == 'schedule' }}
           build-args: VERSION=${{ github.ref_name }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
